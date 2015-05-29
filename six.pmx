@@ -1,0 +1,50 @@
+---
+name: six
+description: ''
+keywords: ''
+type: Default
+documentation: ''
+images:
+- name: six_redis
+  source: redis:3
+  type: Default
+- name: six_database
+  source: mysql:5
+  type: Default
+  ports:
+  - host_port: '3306'
+    container_port: '3306'
+    proto: TCP
+  environment:
+  - variable: MYSQL_ROOT_PASSWORD
+    value: a
+  - variable: MYSQL_DATABASE
+    value: six
+  volumes:
+  - host_path: "/data/six_data"
+    container_path: "/var/lib/mysql"
+- name: six-php-fpm
+  source: mouyigang/laravel-phpfpm:latest
+  type: Default
+  links:
+  - service: six_redis
+    alias: redis
+  - service: six_database
+    alias: mysql
+  volumes:
+  - host_path: "/data/six"
+    container_path: "/www/six"
+- name: six-mynginx
+  source: mouyigang/laravel-nginx:latest
+  type: Default
+  ports:
+  - host_port: '8081'
+    container_port: '80'
+    proto: TCP
+  links:
+  - service: six-php-fpm
+    alias: fpm
+  volumes:
+  - host_path: "/data/six"
+    container_path: "/www/six"
+  command: six
