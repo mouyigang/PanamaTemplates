@@ -1,0 +1,58 @@
+---
+name: statistics
+description: ''
+keywords: ''
+type: Default
+documentation: ''
+images:
+- name: crawler_database
+  source: mysql:latest
+  category: core services
+  type: Default
+  ports:
+  - host_port: '3306'
+    container_port: '3306'
+    proto: TCP
+  environment:
+  - variable: MYSQL_ROOT_PASSWORD
+    value: a
+  - variable: MYSQL_DATABASE
+    value: crawler_data
+  - variable: MYSQL_USER
+    value: edaadmin
+  - variable: MYSQL_PASSWORD
+    value: grgtt2tsrgv34t
+  volumes:
+  - host_path: "/data/mysql"
+    container_path: "/var/lib/mysql"
+- name: six-statistics-php-fpm
+  source: mouyigang/laravel-phpfpm:latest
+  category: core services
+  type: Default
+  links:
+  - service: redis_1
+    alias: redis
+  - service: crawler_database
+    alias: mysql
+  volumes:
+  - host_path: "/data/statistics_panel"
+    container_path: "/www/statistics"
+- name: redis_1
+  source: redis:3.0.1
+  category: core services
+  type: Default
+- name: six-statistics-mynginx
+  source: mouyigang/laravel-nginx:latest
+  category: core services
+  type: Default
+  ports:
+  - host_port: '8082'
+    container_port: '80'
+    proto: TCP
+  links:
+  - service: six-statistics-php-fpm
+    alias: fpm
+  volumes:
+  - host_path: "/data/statistics_panel"
+    container_path: "/www/statistics"
+  command: statistics
