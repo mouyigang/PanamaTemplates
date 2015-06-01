@@ -11,10 +11,6 @@ images:
 - name: six_database
   source: mysql:5
   type: Default
-  ports:
-  - host_port: '3306'
-    container_port: '3306'
-    proto: TCP
   environment:
   - variable: MYSQL_ROOT_PASSWORD
     value: a
